@@ -1,0 +1,67 @@
+     1                                  ; TAHA TAS
+     2                                  ; CSC 322 10/3/2022
+     3                                  ; Project 3 - Summing Arrays
+     4                                  ; Adds values from arrays
+     5                                  
+     6                                  SECTION .data
+     7                                  ; define data/variables here.  Think DB, DW, DD, DQ
+     8 00000000 FFFEFDFCFB              bArray:		DB	-1,-2,-3,-4,-5
+     9 00000005 000001000200030004-     wArray:		DW	0,1,2,3,4
+    10 0000000E 00                 
+    11 0000000F 4201000022030000D2-     dArray:		DD	322,322h,322q,1833,1833h
+    12 00000018 000000290700003318-
+    13 00000021 0000               
+    14 00000023 00                      bArraySum:	DB	0
+    15 00000024 0000                    wArraySum:	DW	0
+    16 00000026 00000000                dArraySum:	DD	0
+    17 0000002A 00000000                grandTotal:	DD	0
+    18                                  
+    19                                  
+    20                                  
+    21                                  SECTION .bss
+    22                                  ; define uninitialized data here
+    23                                  
+    24                                  SECTION .text
+    25                                  global _main
+    26                                  _main:
+    27                                  
+    28                                  ; bArraySum adding
+    29 00000000 A0[00000000]            mov al, [bArray]
+    30 00000005 0205[01000000]          add al, [bArray+1]
+    31 0000000B 0205[02000000]          add al, [bArray+2]
+    32 00000011 0205[03000000]          add al, [bArray+3]
+    33 00000017 0205[04000000]          add al, [bArray+4]
+    34 0000001D 0FBEC0                  movsx eax, al
+    35 00000020 A2[23000000]            mov [bArraySum], al
+    36                                  alBreak:
+    37                                  
+    38                                  ; wArraySum adding
+    39 00000025 668B1D[05000000]        mov bx, [wArray]
+    40 0000002C 66031D[07000000]        add bx, [wArray+1*2]
+    41 00000033 66031D[09000000]        add bx, [wArray+2*2]
+    42 0000003A 66031D[0B000000]        add bx, [wArray+3*2]
+    43 00000041 66031D[0D000000]        add bx, [wArray+4*2]
+    44 00000048 0FBFDB                  movsx ebx, bx
+    45 0000004B 66891D[24000000]        mov [wArraySum], bx
+    46                                  bxBreak:
+    47                                  
+    48                                  ; dArraySum adding
+    49 00000052 8B0D[0F000000]          mov ecx, [dArray]
+    50 00000058 030D[13000000]          add ecx, [dArray+1*4]
+    51 0000005E 030D[17000000]          add ecx, [dArray+2*4]
+    52 00000064 030D[1B000000]          add ecx, [dArray+3*4]
+    53 0000006A 030D[1F000000]          add ecx, [dArray+4*4]
+    54 00000070 890D[26000000]          mov [dArraySum], ecx
+    55                                  ecxBreak:
+    56                                  
+    57                                  ; grandTotal adding
+    58 00000076 010D[2A000000]          add [grandTotal], ecx
+    59 0000007C 0105[2A000000]          add [grandTotal], eax
+    60 00000082 011D[2A000000]          add [grandTotal], ebx
+    61                                  
+    62                                  lastBreak:
+    63                                  
+    64                                  ; Normal termination code
+    65 00000088 B801000000              mov eax, 1
+    66 0000008D BB00000000              mov ebx, 0
+    67 00000092 CD80                    int 80h

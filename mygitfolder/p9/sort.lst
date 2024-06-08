@@ -1,0 +1,172 @@
+     1                                  ; TAHA TAS
+     2                                  ; Program 9: Sort Array
+     3                                  ; December 2, 2022
+     4                                  ; Sorts array with bubble sort and prints out the numbers from lest to greatest with 0 padding
+     5                                  
+     6                                  %macro  PrintIt 2
+     7                                          pusha
+     8                                          mov eax,4
+     9                                          mov ebx,1
+    10                                          mov ecx,%1
+    11                                          mov edx,%2
+    12                                          int 80h
+    13                                          popa
+    14                                  %endmacro
+    15                                  
+    16                                  
+    17                                  SECTION .data
+    18 00000000 C8002C010000FFFF00-     nums:           dw      200, 300, 0, 65535, 0, 1, 65534, 300, 100
+    19 00000009 000100FEFF2C016400 
+    20                                  numslen:        EQU     ($-nums)
+    21                                  
+    22 00000012 1B5B324A                cls:            db      1bh, '[2J'
+    23                                  clsSize:        EQU     $-cls
+    24                                  
+    25 00000016 4F726967696E616C20-     oArrayLabel:    dw      "Original Array", 10
+    26 0000001F 41727261790A00     
+    27                                  OALlen:         EQU     ($-oArrayLabel)
+    28                                  
+    29 00000026 536F72746564204172-     sArrayLabel:    dw      "Sorted Array", 10
+    30 0000002F 7261790A00         
+    31                                  SALlen:         EQU     ($-sArrayLabel)
+    32                                  
+    33 00000034 20202020200A            outputfield:    db      "     ", 10
+    34                                  OPFlen:         EQU     ($-outputfield)
+    35                                  
+    36 0000003A 0A00                    ten:            dw      10  
+    37                                  
+    38 0000003C 0000                    temp:           dw      0
+    39                                  
+    40                                  SECTION .bss
+    41                                  ; define uninitialized data here
+    42                                  
+    43                                  SECTION .text
+    44                                  global _main
+    45                                  _main:
+    46                                  
+    47                                  PrintIt cls,clsSize
+    48 00000000 60                  <1>  pusha
+    49 00000001 B804000000          <1>  mov eax,4
+    50 00000006 BB01000000          <1>  mov ebx,1
+    51 0000000B B9[12000000]        <1>  mov ecx,%1
+    52 00000010 BA04000000          <1>  mov edx,%2
+    53 00000015 CD80                <1>  int 80h
+    54 00000017 61                  <1>  popa
+    55                                  PrintIt oArrayLabel, OALlen
+    56 00000018 60                  <1>  pusha
+    57 00000019 B804000000          <1>  mov eax,4
+    58 0000001E BB01000000          <1>  mov ebx,1
+    59 00000023 B9[16000000]        <1>  mov ecx,%1
+    60 00000028 BA10000000          <1>  mov edx,%2
+    61 0000002D CD80                <1>  int 80h
+    62 0000002F 61                  <1>  popa
+    63                                  
+    64                                  
+    65 00000030 E868000000              call sortArray
+    66 00000035 BB[00000000]            mov ebx, nums
+    67 0000003A B912000000              mov ecx, numslen
+    68 0000003F E80C000000              call _prtarray
+    69                                  
+    70                                  
+    71                                  lastBreak:
+    72                                  ; Normal termination code
+    73 00000044 B801000000              mov eax, 1
+    74 00000049 BB00000000              mov ebx, 0
+    75 0000004E CD80                    int 80h
+    76                                  
+    77                                  
+    78                                  _prtarray:
+    79 00000050 60                          pusha
+    80                                  
+    81                                      prtTop:
+    82 00000051 668B03                          mov     ax, [ebx]
+    83 00000054 E808000000                      call    _convert
+    84 00000059 83C302                          add     ebx,2
+    85 0000005C 49                              dec     ecx
+    86 0000005D E2F2                        loop    prtTop
+    87                                  
+    88 0000005F 61                          popa
+    89 00000060 C3                      ret
+    90                                  
+    91                                  _convert:
+    92 00000061 60                              pusha
+    93                                          
+    94 00000062 BB[34000000]                    mov ebx, outputfield
+    95 00000067 6683C304                        add bx, 4
+    96 0000006B B905000000                      mov ecx, 5
+    97                                  
+    98                                          floop:
+    99                                                  b1:
+   100 00000070 6631D2                                  xor dx, dx
+   101                                                  b2:
+   102 00000073 66F735[3A000000]                        div WORD[ten]
+   103                                                  b3:
+   104 0000007A 6683C230                                add dx, '0'
+   105                                                  b4:
+   106 0000007E 8813                                    mov [ebx], dl
+   107                                                  b5:
+   108 00000080 83EB01                                  sub ebx,1
+   109                                                  b6:
+   110 00000083 E2EB                            loop floop
+   111                                  
+   112 00000085 B804000000                      mov     eax, 4
+   113 0000008A BB01000000                      mov     ebx, 1
+   114 0000008F B9[34000000]                    mov     ecx, outputfield
+   115 00000094 BA06000000                      mov     edx, OPFlen
+   116 00000099 CD80                            int     80h
+   117                                  
+   118 0000009B 61                              popa
+   119 0000009C C3                      ret
+   120                                  
+   121                                  sortArray:
+   122 0000009D 60                              pusha
+   123                                  
+   124 0000009E 6631C0                          xor ax, ax
+   125 000000A1 6631DB                          xor bx, bx
+   126                                          oloop:
+   127                                                  
+   128 000000A4 6683F809                                cmp ax, numslen/2
+   129 000000A8 7202                                    jb iloop
+   130 000000AA EB5D                                    jmp endo
+   131                                                  ;mov eax, [ocount]
+   132                                                  iloop:
+   133                                  
+   134                                                          ;mov ebx, 0
+   135 000000AC 66C705[3C000000]09-                             mov WORD[temp], numslen/2
+   136 000000B4 00                 
+   137 000000B5 662905[3C000000]                                sub [temp], ax
+   138 000000BC 66FF0D[3C000000]                                dec WORD[temp]
+   139                                  
+   140 000000C3 663B1D[3C000000]                                cmp bx, [temp]
+   141 000000CA 7202                                            jb cont1
+   142 000000CC EB34                                            jmp endi
+   143                                  
+   144                                                  cont1:
+   145 000000CE 6631C9                                          xor cx, cx
+   146 000000D1 6631D2                                          xor dx, dx
+   147 000000D4 668B8C1B[00000000]                              mov cx, WORD[nums + 2*ebx]
+   148 000000DC 668B941B[02000000]                              mov dx, WORD[nums + 2*ebx + 2]
+   149 000000E4 6639D1                                          cmp cx, dx
+   150 000000E7 7702                                            ja cont2
+   151 000000E9 EB13                                            jmp loopback
+   152                                  
+   153                                                  cont2:
+   154 000000EB 6687CA                                          xchg cx, dx
+   155 000000EE 66898C1B[00000000]                              mov WORD[nums + 2*ebx], cx
+   156 000000F6 6689941B[02000000]                              mov WORD[nums + 2*ebx + 2], dx
+   157                                                          ;jmp loopback
+   158                                                  loopback:
+   159 000000FE 6643                                            inc bx
+   160 00000100 EBAA                                            jmp iloop
+   161                                                  endi:
+   162 00000102 6631DB                                          xor bx, bx
+   163 00000105 6640                                            inc ax
+   164 00000107 EB9B                                            jmp oloop
+   165                                          endo:
+   166                                  
+   167                                  
+   168                                  
+   169 00000109 61                              popa
+   170 0000010A C3                      ret
+   171                                  
+   172                                  

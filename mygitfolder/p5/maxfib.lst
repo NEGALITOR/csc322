@@ -1,0 +1,42 @@
+     1                                  ; TAHA TAS
+     2                                  ; Program 5 - Max Fibonacci
+     3                                  ; 10/17/2022
+     4                                  ; Finds the max fibonacci number that can fit in a double word and stores it
+     5                                  
+     6                                  SECTION .data
+     7                                  ; define data/variables here.  Think DB, DW, DD, DQ
+     8                                  
+     9                                  SECTION .bss
+    10                                  ; define uninitialized data here
+    11 00000000 <res 00000004>          MaxFib:		RESD 1
+    12 00000004 <res 00000002>          FibCount:	RESW 1
+    13                                  
+    14                                  
+    15                                  SECTION .text
+    16                                  global _main
+    17                                  _main:
+    18                                  
+    19 00000000 B800000000              mov eax, 0
+    20 00000005 BB01000000              mov ebx, 1
+    21                                  
+    22 0000000A 66FF05[04000000]        inc WORD[FibCount]
+    23                                  
+    24                                  startLoop:
+    25                                  
+    26 00000011 89D9                    mov ecx, ebx
+    27 00000013 93                      xchg ebx, eax
+    28 00000014 01C3                    add ebx, eax
+    29 00000016 720F                    jc endLoop
+    30                                  
+    31 00000018 890D[00000000]          mov [MaxFib], ecx
+    32 0000001E 66FF05[04000000]        inc WORD[FibCount]
+    33                                  
+    34 00000025 EBEA                    jmp startLoop
+    35                                  
+    36                                  endLoop:
+    37                                  
+    38                                  lastBreak:
+    39                                  ; Normal termination code
+    40 00000027 B801000000              mov eax, 1
+    41 0000002C BB00000000              mov ebx, 0
+    42 00000031 CD80                    int 80h

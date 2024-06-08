@@ -1,0 +1,110 @@
+     1                                  ; Bob Allen
+     2                                  ; Convert int to printable int
+     3                                  ; Fall 2022
+     4                                  
+     5                                  %macro  PrintIt 2
+     6                                          pusha
+     7                                          mov eax,4
+     8                                          mov ebx,1
+     9                                          mov ecx,%1
+    10                                          mov edx,%2
+    11                                          int 80h
+    12                                          popa
+    13                                  %endmacro
+    14                                  
+    15                                  
+    16                                  
+    17                                  SECTION .data
+    18                                  ; Clear Screen control characters
+    19 00000000 1B5B324A                cls:      db      1bh, '[2J'
+    20                                  clsSize:  EQU  $-cls
+    21                                  
+    22                                  ;;;; Array of unsigned ints as byte data
+    23 00000004 0001020304050664C8-     nums:	  db	0, 1, 2, 3, 4, 5, 6, 100, 200, 255; should work with more
+    24 0000000D FF                 
+    25                                  numslen:  EQU	($-nums)
+    26                                  
+    27 0000000E 41727261792056616C-     label:    db "Array Values",10
+    28 00000017 7565730A           
+    29                                  labellen: EQU $-label
+    30                                  
+    31 0000001B 2020200A                outputfield:	db "   ",10	;;;  Note this is three spaces to hold 3 digits for printing and newline char
+    32                                  
+    33 0000001F 0A                      ten:	db 10			;;;  For dividing by ten
+    34                                  
+    35                                  SECTION .bss
+    36                                  ; define uninitialized data here
+    37                                  
+    38                                  SECTION .text
+    39                                  global _main, _convert, _prtarray
+    40                                  _main:
+    41                                  
+    42                                  
+    43                                  	PrintIt cls,clsSize
+    44 00000000 60                  <1>  pusha
+    45 00000001 B804000000          <1>  mov eax,4
+    46 00000006 BB01000000          <1>  mov ebx,1
+    47 0000000B B9[00000000]        <1>  mov ecx,%1
+    48 00000010 BA04000000          <1>  mov edx,%2
+    49 00000015 CD80                <1>  int 80h
+    50 00000017 61                  <1>  popa
+    51                                  	PrintIt label, labellen
+    52 00000018 60                  <1>  pusha
+    53 00000019 B804000000          <1>  mov eax,4
+    54 0000001E BB01000000          <1>  mov ebx,1
+    55 00000023 B9[0E000000]        <1>  mov ecx,%1
+    56 00000028 BA0D000000          <1>  mov edx,%2
+    57 0000002D CD80                <1>  int 80h
+    58 0000002F 61                  <1>  popa
+    59                                  
+    60                                  ;;;  Parameters: ebx points to array
+    61                                  ;;;		 ecx is len of array
+    62 00000030 BB[04000000]            	mov	ebx,nums
+    63 00000035 B90A000000              	mov	ecx,numslen
+    64 0000003A E80C000000              	call	_prtarray
+    65                                  
+    66                                  lastBreak:
+    67                                  
+    68                                  
+    69                                  ; Normal termination code
+    70 0000003F B801000000              mov eax, 1
+    71 00000044 BB00000000              mov ebx, 0
+    72 00000049 CD80                    int 80h
+    73                                  
+    74                                  ;;  Print Array, passed pointer to array in ebx, size in ecx
+    75                                  _prtarray:
+    76 0000004B 60                      	pusha
+    77                                  
+    78                                  prtTop:
+    79 0000004C 8A03                    	mov	al,[ebx]
+    80 0000004E E805000000              	call	_convert
+    81 00000053 43                      	inc	ebx
+    82 00000054 E2F6                    	loop	prtTop
+    83                                  
+    84 00000056 61                      	popa
+    85 00000057 C3                      	ret
+    86                                  
+    87                                  ;;  Convert unsigned byte int in AL reg into 3 chars
+    88                                  _convert:
+    89 00000058 60                      	pusha
+    90                                  
+    91 00000059 BB[1B000000]            	mov	ebx,outputfield
+    92 0000005E 83C302                  	add	ebx,2			;;;; point to right most digit.
+    93 00000061 B903000000              	mov 	ecx,3			;;;; loop over max of 3 digits in unsigned byte
+    94                                  threetimes:	
+    95 00000066 30E4                    	xor	ah,ah			;;;; ax = al value unsigned
+    96 00000068 F635[1F000000]          	div	BYTE [ten]
+    97 0000006E 80C430                  	add	ah,'0'
+    98 00000071 8823                    	mov	[ebx],ah
+    99 00000073 4B                      	dec	ebx
+   100 00000074 E2F0                    	loop	threetimes
+   101                                  
+   102 00000076 B804000000              	mov	eax,4
+   103 0000007B BB01000000              	mov	ebx,1
+   104 00000080 B9[1B000000]            	mov 	ecx,outputfield
+   105 00000085 BA04000000              	mov	edx,4
+   106 0000008A CD80                    	int	80h
+   107                                  
+   108 0000008C 61                      	popa
+   109 0000008D C3                      	ret
+   110                                  

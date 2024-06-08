@@ -1,0 +1,29 @@
+     1                                  ; Program 4.4
+     2                                  ; Array - NASM (32-bit)
+     3                                  ; Copyright (c) 2017 Hall & Slonka
+     4                                  
+     5                                  SECTION .data
+     6 00000000 010000000200000003-     array: DD 1, 2, 3, 4
+     7 00000009 00000004000000     
+     8                                  
+     9                                  SECTION .text
+    10                                  global _main
+    11                                  _main:
+    12                                  
+    13                                  ; Load using byte offsets
+    14 00000000 A1[00000000]            mov eax, [array]
+    15 00000005 8B1D[04000000]          mov ebx, [array + 4]
+    16                                  b1:
+    17                                  
+    18                                  ; Save using indices
+    19 0000000B BA02000000              mov edx, 2
+    20 00000010 C70495[00000000]0A-     mov DWORD [array + edx * 4], 10
+    21 00000018 000000             
+    22 0000001B BA03000000              mov edx, 3
+    23 00000020 C70495[00000000]14-     mov DWORD [array + edx * 4], 20
+    24 00000028 000000             
+    25                                  b2:
+    26                                  
+    27 0000002B B801000000              mov eax, 1
+    28 00000030 BB00000000              mov ebx, 0
+    29 00000035 CD80                    int 80h
