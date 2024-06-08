@@ -1,1 +1,1 @@
-# csc322
+# Computer Org & Assembly Language
